@@ -1,1 +1,85 @@
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+#app {
+  padding: 16px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.glass {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(18px);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.08);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.timer {
+  text-align: center;
+}
+
+.timer h4 {
+  margin-bottom: 8px;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.bar {
+  height: 12px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: #6cf;
+  transition: width 0.5s linear;
+}
+
+button {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  margin: 4px;
+}
+
+button:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.hidden {
+  display: none;
+}
+
+.rules ul {
+  padding-left: 20px;
+}
