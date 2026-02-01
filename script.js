@@ -1,7 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getDatabase, ref, onValue, update, set, push
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* ================= FIREBASE ================= */
 
@@ -20,134 +18,134 @@ const db = getDatabase(app);
 
 /* ================= ROLE ================= */
 
-const isAdmin = new URLSearchParams(location.search).get("admin") === "true";
-document.getElementById("roleLabel").innerText = isAdmin ? "Admin Panel" : "User View";
+const isAdmin = new URLSearchParams(window.location.search).get("admin") === "true";
+document.getElementById("roleBadge").innerText = isAdmin ? "ADMIN" : "USER";
 if (isAdmin) document.getElementById("adminPanel").classList.remove("hidden");
 
-/* ================= DEFAULT DATA ================= */
+/* ================= DATA MODEL INIT ================= */
 
 const baseRef = ref(db, "system");
 
 set(baseRef, {
   timers: {
-    bath: { limit: 1800, remaining: 1800, running: false },
-    food: { limit: 2700, used: 0 },
-    washroom: { limit: 1800, used: 0 },
-    sleep: { limit: 25200, remaining: 25200, running: false },
-    unnecessary: { limit: 1200, remaining: 1200 }
+    Bath: { remaining: 1800, running: false },
+    Food: { remaining: 2700, used: 0 },
+    Washroom: { remaining: 1800, used: 0 },
+    Sleep: { remaining: 25200, running: false },
+    WeeklyFun: { used: false }
   },
-  breakGauge: { limit: 12600, remaining: 12600 },
+  gauges: {
+    break: 12600,
+    off: 1200
+  },
   coupons: {}
+});
+
+/* ================= TIMERS UI ================= */
+
+const timersDiv = document.getElementById("timers");
+const adminTimers = document.getElementById("adminTimers");
+
+onValue(baseRef, snap => {
+  const data = snap.val();
+  renderTimers(data.timers);
+  renderGauges(data.gauges);
+  renderCoupons(data.coupons);
 });
 
 /* ================= RENDER ================= */
 
-const timersDiv = document.getElementById("timers");
-const couponsDiv = document.getElementById("coupons");
-const adminControls = document.getElementById("adminControls");
-
-onValue(baseRef, snap => {
-  const data = snap.val();
-  renderTimers(data);
-  renderCoupons(data.coupons || {});
-});
-
-/* ================= TIMERS ================= */
-
-function renderTimers(data) {
+function renderTimers(timers) {
   timersDiv.innerHTML = "";
+  adminTimers.innerHTML = "";
 
-  for (let key in data.timers) {
-    const t = data.timers[key];
-
+  for (let key in timers) {
+    const t = timers[key];
     const div = document.createElement("div");
-    div.className = "glass timer";
-
-    div.innerHTML = `
-      <h4>${key.toUpperCase()}</h4>
-      ${t.remaining !== undefined ? `
-        <div class="circle">
-          ${(t.remaining / 60).toFixed(1)}m
-        </div>` : `
-        <p>Used: ${t.used}</p>
-      `}
-      ${isAdmin ? `
-        <button onclick="toggle('${key}')">Start/Stop</button>
-        <button onclick="addTime('${key}',300)">+5m</button>
-      ` : ``}
-    `;
-
+    div.className = "timer";
+    div.innerHTML = `<h4>${key}</h4><p>${format(t.remaining || 0)}</p>`;
     timersDiv.appendChild(div);
-  }
 
-  // Break Gauge
-  const bg = data.breakGauge;
-  const g = document.createElement("div");
-  g.className = "glass";
-  g.innerHTML = `
-    <h4>3.5h Break Gauge</h4>
-    <div class="bar">
-      <div class="fill" style="width:${(bg.remaining/bg.limit)*100}%"></div>
-    </div>
-    <p>${(bg.remaining/60).toFixed(1)} mins left</p>
-  `;
-  timersDiv.appendChild(g);
+    if (isAdmin && t.remaining !== undefined) {
+      const ad = document.createElement("div");
+      ad.className = "timer";
+      ad.innerHTML = `
+        <h4>${key}</h4>
+        <button onclick="toggle('${key}')">Start/Stop</button>
+        <button onclick="addTime('${key}',300)">+5 min</button>
+        <button onclick="addTime('${key}',-300)">-5 min</button>
+      `;
+      adminTimers.appendChild(ad);
+    }
+  }
 }
 
-/* ================= ADMIN ACTIONS ================= */
+function renderGauges(g) {
+  document.getElementById("breakGauge").style.width = (g.break / 12600 * 100) + "%";
+  document.getElementById("offGauge").style.width = (g.off / 1200 * 100) + "%";
+}
 
-window.toggle = function (key) {
-  const r = ref(db, `system/timers/${key}/running`);
-  onValue(r, s => update(ref(db, `system/timers/${key}`), { running: !s.val() }), { once: true });
-};
+function renderCoupons(coupons = {}) {
+  const list = document.getElementById("couponList");
+  list.innerHTML = "";
 
-window.addTime = function (key, sec) {
-  const r = ref(db, `system/timers/${key}/remaining`);
-  onValue(r, s => update(ref(db, `system/timers/${key}`), {
-    remaining: s.val() + sec
-  }), { once: true });
-};
-
-/* ================= COUPONS ================= */
-
-function renderCoupons(coupons) {
-  couponsDiv.innerHTML = "";
-  Object.entries(coupons).forEach(([id, c]) => {
+  Object.values(coupons).forEach(c => {
     if (c.used) return;
-    const div = document.createElement("div");
-    div.className = "glass";
-    div.innerHTML = `
-      <p>${c.reward}</p>
-      ${!isAdmin ? `<button onclick="redeem('${id}')">Redeem</button>` : ``}
-    `;
-    couponsDiv.appendChild(div);
+    const d = document.createElement("div");
+    d.className = "timer";
+    d.innerHTML = `<strong>${c.name}</strong><br>${c.minutes} min → ${c.target}`;
+    if (!isAdmin) {
+      d.onclick = () => redeem(c.id);
+    }
+    list.appendChild(d);
   });
 }
 
-window.redeem = function (id) {
-  update(ref(db, `system/coupons/${id}`), { used: true });
+/* ================= ACTIONS ================= */
+
+window.toggle = (name) => {
+  const r = ref(db, `system/timers/${name}`);
+  onValue(r, s => {
+    update(r, { running: !s.val().running });
+  }, { once: true });
 };
 
-/* ================= TIMER ENGINE ================= */
-
-setInterval(() => {
-  onValue(baseRef, snap => {
-    const d = snap.val();
-    let updates = {};
-
-    for (let k in d.timers) {
-      const t = d.timers[k];
-      if (t.running && t.remaining > 0) {
-        updates[`timers/${k}/remaining`] = t.remaining - 1;
-      } else if (t.running && t.remaining <= 0) {
-        updates["breakGauge/remaining"] = Math.max(0, d.breakGauge.remaining - 1);
-      }
-    }
-
-    if (Object.keys(updates).length)
-      update(baseRef, updates);
-
+window.addTime = (name, sec) => {
+  const r = ref(db, `system/timers/${name}`);
+  onValue(r, s => {
+    update(r, { remaining: Math.max(0, s.val().remaining + sec) });
   }, { once: true });
-}, 1000);
+};
 
+window.createCoupon = () => {
+  const cRef = push(ref(db, "system/coupons"));
+  set(cRef, {
+    id: cRef.key,
+    name: couponName.value,
+    target: couponTarget.value,
+    minutes: Number(couponMinutes.value),
+    expiry: couponExpiry.value,
+    used: false
+  });
+};
 
+window.redeem = (id) => {
+  const cRef = ref(db, `system/coupons/${id}`);
+  onValue(cRef, s => {
+    const c = s.val();
+    if (c.used) return;
+    update(ref(db, `system/timers/${c.target}`), {
+      remaining: s => s + c.minutes * 60
+    });
+    update(cRef, { used: true });
+  }, { once: true });
+};
+
+/* ================= UTILS ================= */
+
+function format(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor(sec % 3600 / 60);
+  const s = sec % 60;
+  return `${h}h ${m}m ${s}s`;
+}
