@@ -6,64 +6,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <div id="app">
-    <header class="glass">
-      <h1>Study Discipline System</h1>
-      <p id="roleLabel"></p>
-    </header>
 
-    <!-- RULES -->
-    <section class="glass rules">
-      <h3>Rules</h3>
-      <ul>
-        <li>Unauthorized violations deduct from 3.5 hrs</li>
-        <li>Complaints after violations are ignored</li>
-        <li>Every wrong answer deducts 2 minutes</li>
-        <li>Many unspoken rules apply</li>
-      </ul>
-    </section>
+<div id="app" class="glass">
 
-    <!-- TIMERS -->
-    <section id="timers" class="grid"></section>
+  <header>
+    <h1>Study Discipline System</h1>
+    <span id="roleBadge"></span>
+  </header>
 
-    <!-- COUPONS -->
-    <section class="glass">
-      <h3>Coupons</h3>
-      <div id="coupons"></div>
-    </section>
+  <section id="rules">
+    <h3>System Rules</h3>
+    <ul>
+      <li>Unauthorized violations deduct from 3.5h break gauge</li>
+      <li>Complaints after violations are ignored</li>
+      <li>Every wrong answer deducts 2 minutes</li>
+      <li>Many unspoken rules apply</li>
+    </ul>
+  </section>
 
-    <!-- ADMIN PANEL -->
-    <section id="adminPanel" class="glass hidden">
-      <h3>Admin Controls</h3>
-      <div id="adminControls"></div>
-    </section>
-  </div>
+  <section id="timers"></section>
 
-  <!-- Firebase -->
-  <script type="module" src="script.js"></script>
+  <section id="gauges">
+    <div class="gauge">
+      <label>Break Time (3.5 hrs)</label>
+      <div class="bar"><div id="breakGauge"></div></div>
+    </div>
 
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+    <div class="gauge">
+      <label>Unnecessary Off Time (20 min)</label>
+      <div class="bar"><div id="offGauge"></div></div>
+    </div>
+  </section>
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCJVCUCcdToSymcergvP9zRllcmjy-jDJA",
-    authDomain: "v12dk-29.firebaseapp.com",
-    databaseURL: "https://v12dk-29-default-rtdb.firebaseio.com",
-    projectId: "v12dk-29",
-    storageBucket: "v12dk-29.firebasestorage.app",
-    messagingSenderId: "544465437807",
-    appId: "1:544465437807:web:36d9b66b9ea3cacebbf99a"
-  };
+  <section id="coupons">
+    <h3>Coupons</h3>
+    <div id="couponList"></div>
+  </section>
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+  <section id="adminPanel" class="hidden">
+    <h3>Admin Panel</h3>
+
+    <div id="adminTimers"></div>
+
+    <div class="adminBox">
+      <h4>Create Coupon</h4>
+      <input id="couponName" placeholder="Reward name">
+      <input id="couponTarget" placeholder="Target Timer (e.g. Bath)">
+      <input id="couponMinutes" type="number" placeholder="Minutes">
+      <input id="couponExpiry" type="date">
+      <button onclick="createCoupon()">Create</button>
+    </div>
+  </section>
+
+</div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
-
