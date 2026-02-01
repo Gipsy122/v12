@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Study Discipline System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="app">
+    <header class="glass">
+      <h1>Study Discipline System</h1>
+      <p id="roleLabel"></p>
+    </header>
+
+    <!-- RULES -->
+    <section class="glass rules">
+      <h3>Rules</h3>
+      <ul>
+        <li>Unauthorized violations deduct from 3.5 hrs</li>
+        <li>Complaints after violations are ignored</li>
+        <li>Every wrong answer deducts 2 minutes</li>
+        <li>Many unspoken rules apply</li>
+      </ul>
+    </section>
+
+    <!-- TIMERS -->
+    <section id="timers" class="grid"></section>
+
+    <!-- COUPONS -->
+    <section class="glass">
+      <h3>Coupons</h3>
+      <div id="coupons"></div>
+    </section>
+
+    <!-- ADMIN PANEL -->
+    <section id="adminPanel" class="glass hidden">
+      <h3>Admin Controls</h3>
+      <div id="adminControls"></div>
+    </section>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
 
